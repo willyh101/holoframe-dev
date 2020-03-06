@@ -95,8 +95,8 @@ class HoloFrame(pd.DataFrame):
             return frame
 
 
-    def times(self, frame_rate):
-        self['secs'] = self['time']/frame_rate
+    # def times(self, frame_rate):
+    #     self['secs'] = self['time']/frame_rate
 
 
     def meanby(self, conds, on='df', times=None, inplace=False):
@@ -124,6 +124,6 @@ class HoloFrame(pd.DataFrame):
         df = pd.melt(df, ('dim_1', 'dim_2'))
         df = df.rename(columns = {'dim_1':'cell', 'dim_2':'trial', 'variable':'time', 'value':'self'})
 
-        df = df.add_trialwise(df, trialwise_data)
+        df = df.add_trialwise(df, trialwise_data, names=None)
 
         return cls(df)
