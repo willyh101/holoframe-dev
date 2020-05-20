@@ -46,7 +46,22 @@ class HoloFrame(pd.DataFrame):
         if not inplace:
             return frame
 
+
     def add_cellwise(self, vals, name=None, replace=False, inplace=False):
+        """
+        Takes an array of trialwise values (ie. stimmed or not) and adds it to the dataframe
+        for all cells.
+
+        Inputs:
+            vals (array): cellwise data to add
+            name (str): name of the data you're adding, and turns it into the column name
+            replace (bool, False): if there is a column of the same name, replace it if True
+            inplace (bool, False): do operation in-place
+
+        Returns:
+            df (dataframe): your dataframe
+        """
+
         if inplace:
             frame = self
         else:
@@ -62,30 +77,30 @@ class HoloFrame(pd.DataFrame):
             return frame
 
 
-    def add_secs(self, frame_rate, inplace):
+    def add_secs(self, frame_rate, inplace=False):
         if inplace:
             frame = self
         else:
             frame = self.copy()
 
-        self['secs'] = self['time']/frame_rate
+        frame['secs'] = frame['time']/frame_rate
 
         if not inplace:
             return frame
 
 
     def meanby(self, conds, on='df', times=None, inplace=False):
-        return _get_hf_group_unstacked(self, conds, on, times, inplace)
+        return _get_hf_group_mean(self, conds, on, times, inplace)
 
 
     def mbc(self, conds, on='df', times=None, inplace=False):
         cols = ['cell', *conds]
-        return _get_hf_group_unstacked(self, cols, on, times, inplace)
+        return _get_hf_group_mean(self, cols, on, times, inplace)
 
 
     def mbt(self, conds=None, on='df', times=None, inplace=False):
-        cols = ['trial', 'cell', *conds]
-        return _get_hf_group_unstacked(self, cols, on, times, inplace)
+        cols = ['cell', 'trial', *conds]
+        return _get_hf_group_mean(self, cols, on, times, inplace)
 
 
     @classmethod
@@ -97,6 +112,9 @@ class HoloFrame(pd.DataFrame):
         Inputs:
             traces (arr): cell x trial x time array of experiment
             trialwise_data (arr): vector of any trialwise data to append to df
+
+        Returns:
+            holoframe (obj): the df/holoframe object
         """
 
         df = xr.DataArray(traces.T).to_dataset(dim='dim_0').to_dataframe()
@@ -106,6 +124,7 @@ class HoloFrame(pd.DataFrame):
 
         hf = cls(df)
         hf = df.add_trialwise(df, trialwise_data)
+
         if frame_rate is not None:
             hf = hf.add_secs(frame_rate=frame_rate)
 

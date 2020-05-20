@@ -1,20 +1,20 @@
 import numpy as np
 import pandas as pd
 
-def _get_hf_group_unstacked(df, cols, on, times, inplace):
+def _get_hf_group_mean(df, cols, on, times, inplace):
     if times is not None:
         if len(times==4):
             # 4 numbers, so subtract the baseline response
             bdf = df[(df.time > times[0]) & (df.time < times[1])]
             rdf = df[(df.time > times[2]) & (df.time < times[3])]
-            grp_df = rdf.groupby(cols)[on].mean().unstack() - bdf.groupby(cols)[on].mean().unstack()
+            grp_df = rdf.groupby(cols)[[on]].mean() - bdf.groupby(cols)[[on]].mean()
         elif len(times==2):
             # if only 2 numbers, don't baseline
             df = df[(df.time > times[0]) & (df.time < times[1])]
         else: # else it's wrong
             raise IndexError(f'Length of times should either be None (whole trace), 2 (no baselining) or 4 (baselining), not {len(times)}.')
     else: # if you want the whole trace
-        grp_df = df.groupby(cols)[on].mean().unstack()
+        grp_df = df.groupby(cols)[[on]].mean()
 
     if not inplace: # returns a copy
         return grp_df.copy()
