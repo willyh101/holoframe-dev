@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import xarray as xr
-from hf_helpers import _get_hf_group_unstacked, _handle_xwise_data, _add_xwise
+from .hf_helpers import _get_hf_group_mean, _handle_xwise_data, _add_xwise
 
 class HoloFrame(pd.DataFrame):
 ###---warning! don't touch this section. chnages will break it.---###
@@ -16,7 +16,7 @@ class HoloFrame(pd.DataFrame):
 ###---don't change anything above this line because you'll break it---###
 
     # note: self == df
-    def add_trialwise(self, vals, name=None, replace=False, inplace=False):
+    def add_trialwise(self, vals, name=None, replace=True, inplace=False):
         """
         Takes an array of trialwise values (ie. power) and adds it to the dataframe
         for all trials.
@@ -36,12 +36,12 @@ class HoloFrame(pd.DataFrame):
         else:
             frame = self.copy()
 
-        appendthis = _handle_xwise_data(vals) # verify/handle the input data
+        appendthis = _handle_xwise_data(vals, name) # verify/handle the input data
 
         # whatever you are trying to append should be the same length as the target
         assert frame.trial.nunique() == appendthis.size, 'Number of trials and length of trialwise data must match.'
 
-        frame = _add_xwise(appendthis, 'trial', replace)
+        frame = _add_xwise(frame, appendthis, 'trial', replace)
 
         if not inplace:
             return frame
@@ -71,7 +71,7 @@ class HoloFrame(pd.DataFrame):
 
         assert frame.cell.nunique() == appendthis.size, 'Number of cells and length of cellwise data must match.'
 
-        frame = _add_xwise(appendthis, 'cell', replace)
+        frame = _add_xwise(frame, appendthis, 'cell', replace)
 
         if not inplace:
             return frame

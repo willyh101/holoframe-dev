@@ -27,6 +27,8 @@ def _handle_xwise_data(vals, name):
     For handling inputs that append to a HoloFrame. This verifies the input
     and converts them into pandas structures for appending.
     """
+
+    # maybe worth checking to see if list is a list of arrays and then appending multiple times
     if isinstance(vals, (pd.Series, pd.DataFrame)):
         # if a series or dataframe, no need to do anything
         appendthis = vals
@@ -47,7 +49,7 @@ def _handle_xwise_data(vals, name):
 
     return appendthis
 
-def _add_xwise(appendthis, on, replace):
+def _add_xwise(frame, appendthis, on, replace):
     try:
         # join on trials
         frame = frame.join(appendthis, on=on)
